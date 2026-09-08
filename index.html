@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vérification Journalière Échafaudage de Pied - Eiffage</title>
+<style>
+  :root{
+    --eiffage-rouge:#E2001A;
+    --eiffage-noir:#1A1A1A;
+    --gris-clair:#f4f4f4;
+    --gris-bordure:#d9d9d9;
+    --vert-ok:#2e7d32;
+  }
+  * { box-sizing: border-box; }
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--gris-clair);
+    margin:0;
+    padding:0;
+    color: var(--eiffage-noir);
+  }
+  header{
+    background: var(--eiffage-noir);
+    padding: 14px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:5px solid var(--eiffage-rouge);
+  }
+  header .logo{
+    font-weight:bold;
+    font-size:20px;
+    color:#fff;
+    letter-spacing:1px;
+  }
+  header .logo span{ color: var(--eiffage-rouge); }
+  header .titre{
+    color:#fff;
+    font-size:12px;
+    text-align:right;
+    line-height:1.3;
+  }
+  main{
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 12px;
+    padding-bottom: 100px;
+  }
+  h1{
+    font-size:18px;
+    color: var(--eiffage-rouge);
+    border-bottom:2px solid var(--eiffage-rouge);
+    padding-bottom:6px;
+    margin-top:18px;
+  }
+  .bloc-infos{
+    background:#fff;
+    border-radius:8px;
+    padding:14px;
+    margin-bottom:16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:bold;
+    margin-bottom:4px;
+    margin-top:10px;
+    color: var(--eiffage-noir);
+  }
+  input[type=text], input[type=date]{
+    width:100%;
+    padding:10px;
+    font-size:16px;
+    border:1px solid var(--gris-bordure);
+    border-radius:6px;
+    background:#fff;
+  }
+  .critere{
+    background:#fff;
+    border-radius:8px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    border-left:5px solid var(--gris-bordure);
+    transition: border-color .2s;
+  }
+  .critere.conforme{
+    border-left:5px solid var(--vert-ok);
+  }
+  .critere.non-conforme{
+    border-left:5px solid var(--eiffage-rouge);
+  }
+  .critere-header{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .critere-num{
+    background: var(--eiffage-rouge);
+    color:#fff;
+    font-weight:bold;
+    font-size:13px;
+    min-width:26px;
+    height:26px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .critere-texte{
+    font-size:14.5px;
+    line-height:1.35;
+    flex:1;
+  }
+  .critere-actions{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+  }
+  .btn-etat{
+    flex:1;
+    padding:10px 6px;
+    border-radius:6px;
+    border:2px solid var(--gris-bordure);
+    background:#fff;
+    font-size:13px;
+    font-weight:bold;
+    text-align:center;
+    cursor:pointer;
+    user-select:none;
+  }
+  .btn-etat.conforme.actif{
+    background: var(--vert-ok);
+    border-color: var(--vert-ok);
+    color:#fff;
+  }
+  .btn-etat.non-conforme.actif{
+    background: var(--eiffage-rouge);
+    border-color: var(--eiffage-rouge);
+    color:#fff;
+  }
+  textarea.commentaire{
+    width:100%;
+    margin-top:8px;
+    padding:8px;
+    font-size:14px;
+    border:1px solid var(--gris-bordure);
+    border-radius:6px;
+    resize:vertical;
+    min-height:60px;
+    font-family: inherit;
+  }
+  .bloc-synthese{
+    background:#fff;
+    border-radius:8px;
+    padding:14px;
+    margin-top:16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .radio-ligne{
+    display:flex;
+    gap:24px;
+    align-items:center;
+    margin-top:8px;
+    font-size:15px;
+  }
+  .radio-ligne label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-weight:normal;
+    margin:0;
+  }
+  .signature{
+    margin-top:10px;
+  }
+  .barre-progression{
+    position:sticky;
+    top:0;
+    background:#fff;
+    padding:8px 12px;
+    border-bottom:1px solid var(--gris-bordure);
+    z-index:10;
+    font-size:13px;
+    font-weight:bold;
+  }
+  .barre-progression .fond{
+    height:8px;
+    background:var(--gris-clair);
+    border-radius:4px;
+    overflow:hidden;
+    margin-top:4px;
+  }
+  .barre-progression .remplie{
+    height:100%;
+    background: var(--eiffage-rouge);
+    width:0%;
+    transition:width .2s;
+  }
+  .barre-fixe{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    background:#fff;
+    padding:10px 14px;
+    box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
+    display:flex;
+    gap:10px;
+  }
+  .btn-principal{
+    flex:1;
+    padding:14px;
+    background: var(--eiffage-rouge);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  .btn-secondaire{
+    flex:1;
+    padding:14px;
+    background:#fff;
+    color: var(--eiffage-noir);
+    border:2px solid var(--eiffage-noir);
+    border-radius:8px;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  .source-note{
+    font-size:11px;
+    color:#777;
+    text-align:center;
+    margin-top:18px;
+  }
+
+  /* --- Mise en page impression / PDF --- */
+  @media print{
+    header, .barre-fixe, .barre-progression{
+      display:none !important;
+    }
+    body{ background:#fff; }
+    main{ padding:0; max-width:100%; }
+    .critere, .bloc-infos, .bloc-synthese{
+      box-shadow:none;
+      border:1px solid #ccc;
+      page-break-inside: avoid;
+    }
+    .btn-etat{ border:1px solid #999; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">EIFFAGE<span>.</span></div>
+  <div class="titre">Rapport de vérification journalière<br>d'un échafaudage de pied</div>
+</header>
+
+<div class="barre-progression" id="barreProgression">
+  Progression : <span id="txtProgression">0 / 10</span> points contrôlés
+  <div class="fond"><div class="remplie" id="remplie"></div></div>
+</div>
+
+<main>
+
+  <h1>Informations générales</h1>
+  <div class="bloc-infos">
+    <label for="entreprise">Entreprise (cachet)</label>
+    <input type="text" id="entreprise" placeholder="Raison sociale de l'entreprise">
+
+    <label for="date">Date de vérification</label>
+    <input type="date" id="date">
+
+    <label for="chantier">Nom du chantier</label>
+    <input type="text" id="chantier" placeholder="Ex : Résidence Les Tilleuls">
+
+    <label for="adresseChantier">Adresse du chantier</label>
+    <input type="text" id="adresseChantier" placeholder="Ex : 12 rue des Lilas, 69000 Lyon">
+
+    <label for="refAffaire">Référence de l'affaire</label>
+    <input type="text" id="refAffaire" placeholder="Ex : AFF-2026-0456">
+
+    <label for="idEchaf">Identification de l'échafaudage</label>
+    <input type="text" id="idEchaf" placeholder="Ex : ECH-04 / Façade Nord">
+
+    <label for="verificateur">Nom du vérificateur</label>
+    <input type="text" id="verificateur" placeholder="Nom Prénom">
+  </div>
+
+  <h1>Points à contrôler</h1>
+  <div id="listeCriteres"></div>
+
+  <h1>Conclusion</h1>
+  <div class="bloc-synthese">
+    <label for="ncGenerale">Non-conformités éventuelles et mesures de correction (synthèse)</label>
+    <textarea class="commentaire" id="ncGenerale" placeholder="Synthèse des non-conformités constatées et actions correctives engagées..."></textarea>
+
+    <label>Maintien en service de l'échafaudage</label>
+    <div class="radio-ligne">
+      <label><input type="radio" name="maintien" value="oui"> Oui</label>
+      <label><input type="radio" name="maintien" value="non"> Non</label>
+    </div>
+
+    <div class="signature">
+      <label for="signature">Signature du vérificateur (nom tapé, valant signature)</label>
+      <input type="text" id="signature" placeholder="Nom, valant signature">
+    </div>
+  </div>
+
+  <div class="source-note">
+    Fiche établie d'après le document OPPBTP « Rapport de vérification journalière d'un échafaudage de pied » (Arrêté du 21 décembre 2004).
+  </div>
+
+</main>
+
+<div class="barre-fixe">
+  <button class="btn-secondaire" onclick="reinitialiser()">Réinitialiser</button>
+  <button class="btn-principal" onclick="genererPDF()">Enregistrer en PDF</button>
+</div>
+
+<script>
+const criteres = [
+  "Présence et bonne installation des garde-corps et des moyens d'accès",
+  "Absence de déformation permanente ou de corrosion des éléments constitutifs de l'échafaudage pouvant compromettre la sécurité",
+  "Présence de tous les éléments de fixation ou de liaison des constituants de l'échafaudage et verrouillage de ces éléments",
+  "Bonne tenue des éléments d'amarrage (ancrage, vérinage) et absence de désordre au niveau des appuis et des surfaces portantes",
+  "Présence de tous les éléments de calage et de stabilisation ou d'immobilisation",
+  "Bonne fixation des filets et des bâches sur l'échafaudage - continuité du bâchage sur toute la surface extérieure",
+  "Maintien de la continuité, de la planéité, de l'horizontalité et de la bonne tenue de chaque niveau de plancher",
+  "Visibilité des indications sur l'échafaudage relatives aux charges admissibles",
+  "Absence de charges dépassant ces limites admissibles",
+  "Absence d'encombrement des planchers"
+];
+
+const liste = document.getElementById('listeCriteres');
+
+criteres.forEach((texte, index) => {
+  const num = index + 1;
+  const div = document.createElement('div');
+  div.className = 'critere';
+  div.id = 'critere-' + num;
+  div.innerHTML = `
+    <div class="critere-header">
+      <div class="critere-num">${num}</div>
+      <div class="critere-texte">${texte}</div>
+    </div>
+    <div class="critere-actions">
+      <div class="btn-etat conforme" onclick="setEtat(${num}, 'ok', this)">Conforme</div>
+      <div class="btn-etat non-conforme" onclick="setEtat(${num}, 'ko', this)">Non conforme</div>
+    </div>
+    <textarea class="commentaire" id="commentaire-${num}" placeholder="Commentaire (facultatif)"></textarea>
+  `;
+  liste.appendChild(div);
+});
+
+function setEtat(num, val, btn){
+  const bloc = document.getElementById('critere-' + num);
+  const boutons = bloc.querySelectorAll('.btn-etat');
+  boutons.forEach(b => b.classList.remove('actif'));
+  btn.classList.add('actif');
+  bloc.classList.remove('conforme','non-conforme');
+  bloc.classList.add(val === 'ok' ? 'conforme' : 'non-conforme');
+  bloc.dataset.etat = val;
+  majProgression();
+}
+
+function majProgression(){
+  const total = criteres.length;
+  let coches = 0;
+  criteres.forEach((_, i) => {
+    const bloc = document.getElementById('critere-' + (i+1));
+    if(bloc.dataset.etat) coches++;
+  });
+  document.getElementById('txtProgression').textContent = coches + ' / ' + total;
+  document.getElementById('remplie').style.width = (coches/total*100) + '%';
+}
+
+function reinitialiser(){
+  if(confirm('Réinitialiser toute la fiche ?')){
+    document.querySelectorAll('input[type=text], input[type=date], textarea').forEach(el => el.value='');
+    document.querySelectorAll('input[type=radio]').forEach(el => el.checked = false);
+    document.querySelectorAll('.critere').forEach(bloc => {
+      bloc.classList.remove('conforme','non-conforme');
+      delete bloc.dataset.etat;
+      bloc.querySelectorAll('.btn-etat').forEach(b => b.classList.remove('actif'));
+    });
+    majProgression();
+  }
+}
+
+function genererPDF(){
+  let manquants = 0;
+  criteres.forEach((_, i) => {
+    if(!document.getElementById('critere-' + (i+1)).dataset.etat) manquants++;
+  });
+  if(manquants > 0){
+    if(!confirm(manquants + ' point(s) non renseigné(s). Générer le PDF quand même ?')) return;
+  }
+  window.print();
+}
+</script>
+
+</body>
+</html>
